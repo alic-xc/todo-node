@@ -23,7 +23,7 @@ const Registration = () => {
         <Formik
           initialValues={{ username: "", password: "" }}
           validationSchema={Yup.object().shape({
-            username: Yup.string().email().required("Email is required"),
+            username: Yup.string().required("Username is required"),
             password: Yup.string().min(8).required("Password is required"),
           })}
           onSubmit={(values) => {
@@ -31,14 +31,16 @@ const Registration = () => {
             try {
               // highlight-next-line
               const data = {
+                fullName: "Testing Testing",
                 username: values.username,
                 password: values.password,
               };
 
               let response = createUserAccount(data).unwrap();
               response.then((res) => {
+                console.log(res);
                 localStorage.removeItem("access");
-                localStorage.setItem("access", res.access);
+                localStorage.setItem("access", res.token);
                 refetch();
                 navigate("/");
               });

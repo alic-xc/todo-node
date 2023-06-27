@@ -20,19 +20,19 @@ export const bookrAPI = createApi({
 
   endpoints: (builder) => ({
     getTodo: builder.query({
-      query: () => `todo`,
+      query: () => `todos/user`,
     }),
-    getMyAccount: builder.query({ query: () => "user/me" }),
+    getMyAccount: builder.query({ query: () => "auth/user" }),
     addTodo: builder.mutation({
       query: (initial) => ({
-        url: `todo/create`,
+        url: `todos/`,
         method: "POST",
         body: initial,
       }),
     }),
     patchTodo: builder.mutation({
       query: (initial) => ({
-        url: `todo/${initial.id}/update`,
+        url: `todos/${initial.id}`,
         method: "PATCH",
         body: initial,
       }),
@@ -40,7 +40,7 @@ export const bookrAPI = createApi({
 
     deleteTodo: builder.mutation({
       query: (initial) => ({
-        url: `todo/${initial.id}/delete`,
+        url: `todos/${initial.id}`,
         method: "DELETE",
         body: initial,
       }),

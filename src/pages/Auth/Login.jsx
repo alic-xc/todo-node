@@ -4,13 +4,13 @@ import * as Yup from "yup";
 import { NavLink, useNavigate } from "react-router-dom";
 import { notification, Spin } from "antd";
 import { GoogleLogin } from "@react-oauth/google";
-import { useCreateUserAccountMutation } from "../../services/authenticationAPI";
 import UserContext from "../../context/UserContext";
 import AuthLayout from "../../components/AuthLayout";
+import { useLoginMutation } from "../../services/authenticationAPI";
 
 const Login = () => {
   const [loading, setLoading] = React.useState(false);
-  const [createUserAccount] = useCreateUserAccountMutation();
+  const [login] = useLoginMutation();
   const { refetch } = React.useContext(UserContext);
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ const Login = () => {
         <Formik
           initialValues={{ username: "", password: "" }}
           validationSchema={Yup.object().shape({
-            username: Yup.string().email().required("Email is required"),
+            username: Yup.string().required("Username is required"),
             password: Yup.string().min(8).required("Password is required"),
           })}
           onSubmit={(values) => {
@@ -35,16 +35,20 @@ const Login = () => {
                 password: values.password,
               };
 
-              let response = createUserAccount(data).unwrap();
+              let response = login(data).unwrap();
               response.then((res) => {
                 localStorage.removeItem("access");
-                localStorage.setItem("access", res.access);
+                localStorage.setItem("access", res.token);
                 refetch();
                 navigate("/");
+              });
+              response.catch((error) => {
+                notification.error(error.message);
               });
             } catch (err) {
               let msg =
                 "Fail to register because of this reason:" + err.message;
+              notification.error(msg);
             }
             setTimeout(() => setLoading(false), 5000);
           }}

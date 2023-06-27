@@ -15,16 +15,14 @@ const Dashboard = () => {
   const [todo, setTodo] = React.useState({});
   const [loading, setLoading] = React.useState(false);
   const [startRequest, setStartRequest] = React.useState(true);
-  // const { data: todos, isLoading } = useGetTodoQuery({
-  //   skip: startRequest,
-  // });
-  let [todos, setTodos] = React.useState([
-    {
-      id: 1,
-      title: "Let me echek",
-      description: "This is nwe",
-    },
-  ]);
+  const {
+    data: todos,
+    isLoading,
+    refetch,
+  } = useGetTodoQuery({
+    skip: startRequest,
+  });
+
   const [isModalVisible, setIsModalVisible] = React.useState({
     create: false,
     details: false,
@@ -32,6 +30,7 @@ const Dashboard = () => {
 
   const handleOk = (obj) => {
     setTodo(null);
+    refetch();
     setIsModalVisible((prevState) => {
       if (obj === "create") {
         return { ...prevState, create: false };
@@ -88,17 +87,18 @@ const Dashboard = () => {
               </button>
             </div>
             <div className="mx-5 flex flex-col gap-y-2">
-              {todos.map((todo) => (
-                <TodoItem
-                  key={todo.id}
-                  title={todo.title}
-                  description={todo.description}
-                  id={todo.id}
-                  updateHandler={editTodoHandler}
-                  setLoading={setLoading}
-                />
-              ))}
-              {todos.length < 1 && (
+              {!isLoading &&
+                todos?.map((todo) => (
+                  <TodoItem
+                    key={todo.id}
+                    title={todo.title}
+                    description={todo.description}
+                    id={todo.id}
+                    updateHandler={editTodoHandler}
+                    setLoading={setLoading}
+                  />
+                ))}
+              {!isLoading && todos?.length < 1 && (
                 <div className="w-full my-20">
                   <h1 className="text-red-500 font-semibold text-center">
                     No todo added yet!
@@ -117,13 +117,13 @@ const Dashboard = () => {
         visible={isModalVisible.create}
         onOk={() => handleOk("create")}
       >
-        <TodoForm todo={todo} />
+        <TodoForm todo={todo} closeModal={() => handleOk("create")} />
       </Modal>
     </div>
   );
 };
 
-const TodoForm = ({ todo }) => {
+const TodoForm = ({ todo, closeModal }) => {
   const [createTodo] = useAddTodoMutation();
   const [patchTodo] = usePatchTodoMutation();
 
@@ -139,31 +139,52 @@ const TodoForm = ({ todo }) => {
       onSubmit={(values, { setSubmitting }) => {
         try {
           // highlight-next-line
+          setSubmitting(true);
           const formData = {
             title: values.title,
             description: values.description,
           };
-
+          console.log(todo);
           if (todo) {
-            todo["id"] = todo.id;
+            formData["id"] = todo.id;
             let response = patchTodo(formData).unwrap();
-            response.then((res) => {
-              notification.success("Todo updated successfully.");
+            response.then(() => {
+              notification.success({
+                message: "Todo Updated!",
+                description: "Todo updated successfully.",
+              });
+              closeModal();
             });
             response.catch((err) => {
-              notification.error(
-                "Unable to update this todo because of this reason" + err
-              );
+              notification.error({
+                message: "Unable to update todo",
+                description:
+                  "Unable to update this todo because of this reason" +
+                  err.message,
+              });
+            });
+            response.finally(() => {
+              setTimeout(() => setSubmitting(false), 5000);
             });
           } else {
             let response = createTodo(formData).unwrap();
             response.then((res) => {
-              notification.success("Todo added successfully.");
+              notification.success({
+                message: "Todo Added!",
+                description: "Todo added successfully.",
+              });
+              closeModal();
             });
             response.catch((err) => {
-              notification.error(
-                "Unable to add this todo because of this reason" + err
-              );
+              notification.error({
+                message: "Unable to add todo",
+                description:
+                  "Unable to add this todo because of this reason" +
+                  err.message,
+              });
+            });
+            response.finally(() => {
+              setTimeout(() => setSubmitting(false), 5000);
             });
           }
         } catch (err) {
@@ -228,9 +249,27 @@ const TodoItem = ({ id, title, description, updateHandler, setLoading }) => {
     const formData = {
       id,
     };
+    console.log(id);
     let response = deleteTodo({ formData }).unwrap();
-    response.then((res) => {});
-    response.catch((err) => {});
+    response.then((res) => {
+      notification.success({
+        message: "Todo Deleted!",
+        description: "Action performed successfully",
+      });
+      setTimeout(() => {
+        setLoading(false);
+        window.location.reload();
+      }, 5000);
+    });
+    response.catch((err) => {
+      notification.error({
+        message: "Unable To Delete Todo",
+        description: err.message,
+      });
+    });
+    response.finally(() => {
+      setTimeout(() => setLoading(false), 5000);
+    });
     response.finally(() => {
       setTimeout(() => {
         setLoading(false);
@@ -241,7 +280,7 @@ const TodoItem = ({ id, title, description, updateHandler, setLoading }) => {
     <div className="bg-[#f6f6f6]  flex justify-between place-items-center p-3">
       <h1 className="font-semibold text-sm">{title}</h1>
       <section className="">
-        <button onClick={() => updateHandler({ title, description })}>
+        <button onClick={() => updateHandler({ id, title, description })}>
           <EditOutlined className="text-blue-500" />
         </button>
         <button onClick={deleteTodoHandler}>
