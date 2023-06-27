@@ -3,6 +3,7 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { NavLink, useNavigate } from "react-router-dom";
 import { notification, Spin } from "antd";
+import { GoogleLogin } from "@react-oauth/google";
 import { useCreateUserAccountMutation } from "../../services/authenticationAPI";
 import UserContext from "../../context/UserContext";
 import AuthLayout from "../../components/AuthLayout";
@@ -89,6 +90,18 @@ const Login = () => {
                     Sign Up
                   </NavLink>
                 </span>
+                <div className="border-t-2 border-secondary p-3 mt-10 w-full">
+                  <h2 className="mb-3 font-semibold">Or Continue with </h2>
+                  <GoogleLogin
+                    onSuccess={(credentialResponse) => {
+                      console.log(credentialResponse);
+                    }}
+                    onError={() => {
+                      console.log("Login Failed");
+                    }}
+                    useOneTap
+                  />
+                </div>
               </div>
             </Form>
           </Spin>

@@ -14,9 +14,9 @@ const BookrRouter = () => {
         <Route
           path="/"
           element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
+            // <ProtectedRoute>
+            <Dashboard />
+            // </ProtectedRoute>
           }
         />
       </Routes>
