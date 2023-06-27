@@ -1,9 +1,7 @@
+import BookrRouter from "./routes/BookrRouter";
+
 function App() {
-  return (
-    <>
-      <h1>welcome</h1>
-    </>
-  );
+  return <BookrRouter />;
 }
 
 export default App;

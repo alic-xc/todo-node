@@ -8,7 +8,7 @@ export const authenticationAPI = createApi({
   endpoints: (builder) => ({
     createUserAccount: builder.mutation({
       query: (initialRegistration) => ({
-        url: "users/",
+        url: "/auth/register",
         method: "POST",
         body: initialRegistration,
       }),
@@ -23,4 +23,5 @@ export const authenticationAPI = createApi({
   }),
 });
 
-export const { useG } = authenticationAPI;
+export const { useCreateUserAccountMutation, useLoginMutation } =
+  authenticationAPI;
