@@ -52,7 +52,7 @@ const Registration = () => {
           <Spin spinning={loading}>
             <Form className="flex flex-col">
               <div className="basis-[100%] flex flex-col mb-5">
-                <span className="mb-1">Email*</span>
+                <span className="mb-1">Username*</span>
                 <Field
                   type="text"
                   name="username"
@@ -60,7 +60,7 @@ const Registration = () => {
                   className="h-[48px] pl-3 text-secondary bg-white w-[100%] border-2 border-secondary b  outline-none rounded-[5px]"
                 />
                 <ErrorMessage
-                  name="email"
+                  name="username"
                   component="span"
                   className="text-[red] "
                 />
